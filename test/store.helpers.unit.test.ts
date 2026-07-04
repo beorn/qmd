@@ -60,6 +60,22 @@ describe("Path Utilities", () => {
     }
   });
 
+  test("importing CLI helpers does not enable default db paths", async () => {
+    const originalIndexPath = process.env.INDEX_PATH;
+    delete process.env.INDEX_PATH;
+    _resetProductionModeForTesting();
+
+    try {
+      await import("../src/cli/qmd.ts?store-helper-import");
+      expect(() => getDefaultDbPath()).toThrow("Database path not set");
+    } finally {
+      _resetProductionModeForTesting();
+      if (originalIndexPath) {
+        process.env.INDEX_PATH = originalIndexPath;
+      }
+    }
+  });
+
   test("getDefaultDbPath uses INDEX_PATH when set", () => {
     const originalIndexPath = process.env.INDEX_PATH;
     process.env.INDEX_PATH = "/tmp/test-index.sqlite";

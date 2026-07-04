@@ -101,10 +101,6 @@ import {
 } from "../collections.js";
 import { getEmbeddedQmdSkillContent, getEmbeddedQmdSkillFiles } from "../embedded-skills.js";
 
-// Enable production mode - allows using default database path
-// Tests must set INDEX_PATH or use createStore() with explicit path
-enableProductionMode();
-
 // =============================================================================
 // Store/DB lifecycle (no legacy singletons in store.ts)
 // =============================================================================
@@ -2816,6 +2812,10 @@ const isMain = argv1 === __filename
   || argv1?.endsWith("/qmd.js")
   || (argv1 != null && realpathSync(argv1) === __filename);
 if (isMain) {
+  // Only real CLI execution may use the default database path. Importing CLI
+  // helpers from tests must not flip store.ts into production mode.
+  enableProductionMode();
+
   const cli = parseCLI();
 
   if (cli.values.version) {
