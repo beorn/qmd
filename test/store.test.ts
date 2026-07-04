@@ -46,6 +46,7 @@ import {
   normalizeDocid,
   isDocid,
   syncConfigToDb,
+  _resetProductionModeForTesting,
   STRONG_SIGNAL_MIN_SCORE,
   STRONG_SIGNAL_MIN_GAP,
   generateEmbeddings,
@@ -280,11 +281,15 @@ describe("Store Creation", () => {
     // In test mode, createStore without path should throw to prevent accidental writes
     const originalIndexPath = process.env.INDEX_PATH;
     delete process.env.INDEX_PATH;
+    _resetProductionModeForTesting();
 
-    expect(() => createStore()).toThrow("Database path not set");
-
-    // Restore
-    if (originalIndexPath) process.env.INDEX_PATH = originalIndexPath;
+    try {
+      expect(() => createStore()).toThrow("Database path not set");
+    } finally {
+      if (originalIndexPath) {
+        process.env.INDEX_PATH = originalIndexPath;
+      }
+    }
   });
 
   test("createStore creates a new store with custom path", async () => {
